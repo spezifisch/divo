@@ -1,0 +1,94 @@
+from typing import Optional, Union, Any
+
+from command_base import CommandBase, CommandParserBase
+from exceptions import PacketParsingError, PacketChecksumError
+from packet_base import PacketBase
+
+
+class Packet(PacketBase):
+    @classmethod
+    def build(cls, cmd: CommandBase, payload: Optional[Union[bytes, int]] = None) -> bytes:
+        if isinstance(payload, int):
+            payload = bytes([payload])
+        elif payload is None:
+            payload = b''
+            
+        # add header
+        size = len(payload) + 3
+        size_lo = size & 0xff
+        size_hi = (size >> 8) & 0xff
+        command = cmd.value & 0xff
+        packet = bytes([cls.START_OF_PACKET, size_lo, size_hi, command])
+        
+        # add payload
+        packet += payload
+        
+        # add checksum and end marker
+        checksum = sum(packet[1:]) & 0xffff
+        checksum_lo = checksum & 0xff
+        checksum_hi = (checksum >> 8) & 0xff
+        packet += bytes([checksum_lo, checksum_hi, cls.END_OF_PACKET])
+        
+        return packet
+
+    @classmethod
+    def parse(cls, parser: CommandParserBase, packet: bytes) -> Any:
+        try:
+            start = packet[0]
+            size_lo = packet[1]
+            size_hi = packet[2]
+            size = ((size_hi & 0xff) << 8) | (size_lo & 0xff)
+            cmd_type = packet[3]
+            data = packet[4:3+size-2]
+            checksum_lo = packet[3+size-2]
+            checksum_hi = packet[3+size-1]
+            checksum = ((checksum_hi & 0xff) << 8) | (checksum_lo & 0xff)
+            end = packet[3+size]
+        except IndexError:
+            raise PacketParsingError("packet incomplete")
+        
+        if start != PacketBase.START_OF_PACKET:
+            raise PacketParsingError(f"START_OF_PACKET value wrong: {start}")
+        if end != PacketBase.END_OF_PACKET:
+            raise PacketParsingError(f"END_OF_PACKET value wrong: {end}")
+        
+        wanted_checksum = sum(packet[1:3+size-2]) & 0xffff
+        if checksum != wanted_checksum:
+            raise PacketChecksumError(f"checksum wrong, got: {checksum} wanted: {wanted_checksum}")
+        
+        return parser.parse(cmd_type, data)
+    
+    
+class ResponsePacket(PacketBase):
+    MAGIC_CHECK = 4
+    MAGIC_UNK1 = 85
+
+    @classmethod
+    def build(cls, cmd: CommandBase, payload: Optional[Union[bytes, int]] = None) -> bytes:
+        raise NotImplementedError
+
+    @classmethod
+    def parse(cls, parser: CommandParserBase, packet: bytes) -> Any:
+        try:
+            start = packet[0]
+            size_lo = packet[1]
+            size_hi = packet[2]
+            size = ((size_hi & 0xff) << 8) | (size_lo & 0xff)
+            cmd_chk = packet[3]
+            cmd_type = packet[4]
+            unk1 = packet[5]
+            data = packet[6:2+size+1]
+            end = packet[2+size+1]
+        except IndexError:
+            raise PacketParsingError("packet incomplete")
+        
+        if start != cls.START_OF_PACKET:
+            raise PacketParsingError(f"START_OF_PACKET value wrong: {start}")
+        if end != cls.END_OF_PACKET:
+            raise PacketParsingError(f"END_OF_PACKET value wrong: {end}")
+        if cmd_chk != cls.MAGIC_CHECK:
+            raise PacketParsingError(f"MAGIC_CHECK value wrong: {cmd_chk}")
+        if unk1 != cls.MAGIC_UNK1:
+            raise PacketParsingError(f"MAGIC_UNK1 value wrong: {unk1}")
+        
+        return parser.parse_response(cmd_type, data)

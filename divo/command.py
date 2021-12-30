@@ -9,11 +9,13 @@ class Command(CommandBase):
     SET_TIME = 24
     SET_SYSTEM_COLOR = 36
     SEND_APP_NEWEST_TIME = 38
+    SET_24_HOUR = 45
     LIGHT_CURRENT_LEVEL = 49
     SET_BOX_COLOR = 68
     SET_BOX_MODE = 69
     GET_BOX_MODE = 70
     SET_MUL_BOX_COLOR = 73
+    SET_CLIMATE = 95
     SET_SYSTEM_BRIGHTNESS = 116
     SET_GAME = 160
     SET_SLEEP_COLOR = 173
@@ -67,7 +69,15 @@ class BoxMode(IntEnum):
     USER_DEFINE = 5
     WATCH = 6  # is actually score blue/red board
     SCORE = 7  # doesn't work?
-
+#  	const modes = {
+#   			clock: "00",
+#   			lighting: "01",
+#   			cloud: "02",
+#   			effects: "03",
+#   			visualization: "04",
+#   			custom: "05",
+#   			score: "06"
+#   		};
 
 class LightMode(IntEnum):
     CLOCK = 0
@@ -86,7 +96,15 @@ class TimeType(IntEnum):
     BIG_INV = 4
     ANALOG_ROUND = 5
     SMALL = 6
+# Clock modes: 0 fullscreen, 1 rainbow, 2 boxed, 3 analog square, 4 fullscreen negative, 5 analog round, 6 widescreen
 
+class WeatherType(IntEnum):
+    CLEAR = 1
+    CLOUDY = 3
+    THUNDERSTORM = 5
+    RAIN = 6
+    SNOW = 8
+    FOG = 9
 
 class ActivatedModes:
     @staticmethod

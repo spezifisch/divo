@@ -31,6 +31,11 @@ class Packet(PacketBase):
         
         return packet
 
+    @staticmethod
+    def __hex_checksum(checksum: int):
+        tmp = hex(checksum)
+        return tmp[4:7]+tmp[2:4]
+
     @classmethod
     def parse(cls, parser: CommandParserBase, packet: bytes) -> Any:
         try:
@@ -54,7 +59,7 @@ class Packet(PacketBase):
         
         wanted_checksum = sum(packet[1:3+size-2]) & 0xffff
         if checksum != wanted_checksum:
-            raise PacketChecksumError(f"checksum wrong, got: {checksum} wanted: {wanted_checksum}")
+            raise PacketChecksumError(f"checksum wrong, got: {Packet.__hex_checksum(checksum)} wanted: {Packet.__hex_checksum(wanted_checksum)}")
         
         return parser.parse(cmd_type, data)
     

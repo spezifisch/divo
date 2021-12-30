@@ -14,6 +14,7 @@ import packet
 import packet_stream
 import pixoo
 from test import test_pattern
+from image import EvoEncoder, RawPixmap
 
 
 def get_pixoo(mac_address: str) -> pixoo.Pixoo:
@@ -96,6 +97,48 @@ def test(mac_address, test_id):
     dev = get_pixoo(mac_address)
 
     test_pattern(test_id, dev)
+
+
+@cli.command()
+@click.argument("path", nargs=1)
+@click.option("--send", is_flag=True)
+@click.option("--mac-address")
+@click.pass_context
+def img(ctx, path, send, mac_address):
+    screen = ctx.obj["screen"]
+
+    print(path)
+    rp = RawPixmap(16,16)
+    img = rp.load_image(path)
+    rp.set_rgb_pixels(rp.decode_image(img))
+    ee = EvoEncoder()
+    data = ee.image_bytes(rp.get_pixel_data())
+    print("raw command: "+bytes.hex(data))
+    packets = [clean_unhexlify(bytes.hex(data))]
+    command_parser = command.CommandParser()
+    commands = [packet.Packet.parse(command_parser, p) for p in packets]
+    if None in commands:
+        missing = commands.index(None)
+        raise ValueError(f"couldn't parse packet no. {missing}")
+
+    palette = commands[0].palette
+    payload = commands[0].image  # TODO reassemble image data
+
+    psd = packet_stream.PacketStreamDecoder(palette, payload)
+
+    print("palette data:", hexlify(palette))
+    print("palette:")
+    psd.palette.print_to(screen)
+
+    print("image data:", hexlify(payload))
+    print("image:")
+    psd.image.print_to(screen)
+
+    if send:
+        logger.info(f"sending image to {mac_address}")
+        dev = get_pixoo(mac_address)
+        for p in packets:
+            dev.write(p)
 
 
 if __name__ == "__main__":

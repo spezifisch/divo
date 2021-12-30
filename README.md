@@ -46,3 +46,41 @@ Palette 8 color test:
 ```shell
 ./main.py raw 01860044000a0a04aa7f00f4010008000000ff0000ff5500ffaa00ffff02adff0000ff00ffffff88c6fa0000e000000000001c000000008003000000007000000000000e00000000c001000000003800000000000700000000e000000000001c000000008003000000007000000000000e00000000c00100000000380000000000070000000000ee1602
 ```
+
+Set up raspbian on raspberry pi 4:
+```shell
+#git clone repo
+sudo apt install python3 python3-pip libopenjp2-7 libtiff5 zlib1g-dev libjpeg-dev pulseaudio-module-bluetooth bluez pi-bluetooth #bluez-tools
+#to install pulse-audio as root
+sudo bash divo/raspberry-pi/setup.sh
+sudo adduser pi bluetooth
+sudo adduser pi pulse
+sudo adduser pi pulse-access
+
+cd divo 
+pip3 install -r requirements.txt
+cd divo 
+
+bluetoothctl power on
+bluetoothctl agent on
+bluetoothctl scan on #first time setup
+bluetoothctl devices #first time setup
+bluetoothctl pair 11:75:58:xx:xx:xx #first time setup
+bluetoothctl trust 11:75:58:xx:xx:xx #first time setup
+bluetoothctl connect 11:75:58:xx:xx:xx #can just do this after paired and trusted
+#if you don't install pulseaudio as root
+#pulseaudio --start
+#pactl load-module module-bluetooth-discover
+sudo pactl list sources short
+sudo pactl set-default-sink 1
+
+# you can also play audio with mplayer
+
+```
+
+WIP Docker - this works but maybe/probably over-privileged  
+```shell
+docker run -ti --privileged --net=host -v /dev/bus/usb:/dev/bus/usb -v /run/dbus:/run/dbus -v /var/run/dbus:/var/run/dbus -v /var/run/sdp:/var/run/sdp -v /home/pi/divo:/opt/divo --cap-add=ALL debian
+apt update; apt install -y python3 python3-pip libopenjp2-7 libtiff5 zlib1g-dev libjpeg-dev pulseaudio-module-bluetooth bluez
+# can resume above steps from pip3 install
+```

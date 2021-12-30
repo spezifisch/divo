@@ -15,6 +15,7 @@ class BluetoothSocket(BluetoothBase):
         self.timeout = kwargs.get("socket_timeout", None)  # type: Optional[float]
 
     def connect(self):
+        #AddressFamily.AF_BLUETOOTH # SocketKind.SOCK_STREAM # 3
         self.sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
         self.sock.connect((self.mac_address, 1))
 

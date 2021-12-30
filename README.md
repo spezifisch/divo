@@ -1,6 +1,6 @@
 # divo
 
-Divoom Pixoo python controller, packet builder/parser and image renderer.
+Divoom Pixoo and Divoom Timebox Evo python controller, packet builder/parser and image renderer.
 
 This project aims to fully implement controlling everything the Pixoo can do. (WIP)
 
@@ -12,6 +12,10 @@ Hints:
 * add `--send --mac-address 11:75:58:xx:xx:xx` to send these packets to your Pixoo
 * add `--debug` for debug output
 * there are a lot of tests demo'ing most of the Pixoo modes in the sub-command `./main.py test` 
+
+```shell
+python3 main.py img --send --mac-address 11:75:58:xx:xx:xx test.png
+```
 
 Mudkip ([source](https://pixel.divoom-gz.com/#/pages/index/udetail?uid=400541387&suid=401026599)):
 

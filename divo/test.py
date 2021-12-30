@@ -2,10 +2,11 @@ from loguru import logger
 from time import sleep
 from typing import Any, Optional
 
-from command import CommandParser, TimeType
+from command import CommandParser, TimeType, ActivatedModes, Command, BoxMode, WeatherType
 from packet import Packet, ResponsePacket
 from pixoo import Pixoo
-
+from datetime import datetime
+from image import EvoEncoder, RawPixmap
 
 def parse_packet(data: Optional[bytes]) -> Any:
     return Packet.parse(CommandParser(), data)
@@ -156,5 +157,33 @@ def test_pattern(test: int, d: Pixoo):
             "0ff89b2449ff0d00d6b6adb60d00a06d92b40d00a06d89a40100106d89a401001049893400512802")
         parse_packet(p)
         d.write(p)
+    elif test == 12:
+        #d.set_music_visualizer(4)
+        #d.set_game(True, 0)
+        #d.set_score(50,999)
+        d.set_time()
+        #d.set_time(datetime(2021, 12, 30, 23, 55, 59, 342380))
+        d.set_light_mode_clock(TimeType.BIG, 0, 0, 255, ActivatedModes(clock=True, weather=True, temperature=True, date=False))
+        #d.set_light_mode_vj(1)
+        d.set_brightness(10)
+        #val = bytes([BoxMode.USER_DEFINE])
+        #d.write_command(Command.SET_BOX_MODE, val)
+        # https://github.com/jfroehlich/node-p1x3lramen/blob/main/source/devices/pixoo.js
+        #https://github.com/DavidVentura/divoom/blob/master/divoom/protocol.py
+        #val = bytes([12, WeatherType.CLEAR])
+        #d.write_command(Command.SET_CLIMATE, val)
+
+        #val = bytes([0])
+        #d.write_command(Command.SET_24_HOUR, val)
+
+        rp = RawPixmap(16,16)
+        img = rp.load_image("test.png")
+        pixels = rp.decode_image(img)
+        rp.set_rgb_pixels(pixels)
+        ee = EvoEncoder()
+        x = ee.image_bytes(rp.get_pixel_data())
+        #print(bytes.hex(x))
+        parse_packet(x)
+        d.write(x)
     else:
         raise ValueError("invalid test id")

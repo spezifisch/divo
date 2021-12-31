@@ -1,3 +1,17 @@
+"""
+This file is part of divo (https://github.com/spezifisch/divo).
+Copyright (c) 2021 spezifisch (https://github.com/spezifisch), carolosf (https://github.com/carolosf).
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 from enum import IntEnum
 from loguru import logger
 from typing import Optional, Any
@@ -89,14 +103,15 @@ class LightMode(IntEnum):
 
 
 class TimeType(IntEnum):
-    BIG = 0
-    RAINBOW = 1
-    BORDER = 2
-    ANALOG = 3
-    BIG_INV = 4
-    ANALOG_ROUND = 5
-    SMALL = 6
-# Clock modes: 0 fullscreen, 1 rainbow, 2 boxed, 3 analog square, 4 fullscreen negative, 5 analog round, 6 widescreen
+    """Different clock layouts that can be chosen"""
+    BIG = 0             # fullscreen
+    RAINBOW = 1         # rainbow
+    BORDER = 2          # boxed
+    ANALOG = 3          # analog square
+    BIG_INV = 4         # fullscreen negative
+    ANALOG_ROUND = 5    # analog round
+    SMALL = 6           # widescreen
+
 
 class WeatherType(IntEnum):
     CLEAR = 1
@@ -105,6 +120,7 @@ class WeatherType(IntEnum):
     RAIN = 6
     SNOW = 8
     FOG = 9
+
 
 class ActivatedModes:
     @staticmethod

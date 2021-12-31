@@ -1,4 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""
+This file is part of divo (https://github.com/spezifisch/divo).
+Copyright (c) 2021 spezifisch (https://github.com/spezifisch), carolosf (https://github.com/carolosf).
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
 
 import sys
 from binascii import hexlify
@@ -8,13 +21,14 @@ import click
 
 import bluetooth_socket
 import command
+from evo_encoder import EvoEncoder
+from evo_pixmap import RawPixmap
 from helpers import clean_unhexlify
 import image
 import packet
 import packet_stream
 import pixoo
 from test import test_pattern
-from image import EvoEncoder, RawPixmap
 
 
 def get_pixoo(mac_address: str) -> pixoo.Pixoo:
@@ -91,15 +105,6 @@ def raw(ctx, raw_data, send, mac_address):
 
 
 @cli.command()
-@click.option("--mac-address", required=True)
-@click.option("--test-id", default=1, required=True)
-def test(mac_address, test_id):
-    dev = get_pixoo(mac_address)
-
-    test_pattern(test_id, dev)
-
-
-@cli.command()
 @click.argument("path", nargs=1)
 @click.option("--send", is_flag=True)
 @click.option("--mac-address")
@@ -111,9 +116,11 @@ def img(ctx, path, send, mac_address):
     rp = RawPixmap(16,16)
     img = rp.load_image(path)
     rp.set_rgb_pixels(rp.decode_image(img))
+
     ee = EvoEncoder()
     data = ee.image_bytes(rp.get_pixel_data())
     print("raw command: "+bytes.hex(data))
+
     packets = [clean_unhexlify(bytes.hex(data))]
     command_parser = command.CommandParser()
     commands = [packet.Packet.parse(command_parser, p) for p in packets]
@@ -139,6 +146,15 @@ def img(ctx, path, send, mac_address):
         dev = get_pixoo(mac_address)
         for p in packets:
             dev.write(p)
+
+
+@cli.command()
+@click.option("--mac-address", required=True)
+@click.option("--test-id", default=1, required=True)
+def test(mac_address, test_id):
+    dev = get_pixoo(mac_address)
+
+    test_pattern(test_id, dev)
 
 
 if __name__ == "__main__":

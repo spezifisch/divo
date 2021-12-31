@@ -1,3 +1,17 @@
+"""
+This file is part of divo (https://github.com/spezifisch/divo).
+Copyright (c) 2021 spezifisch (https://github.com/spezifisch).
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 import socket
 from typing import Optional
 
@@ -15,7 +29,6 @@ class BluetoothSocket(BluetoothBase):
         self.timeout = kwargs.get("socket_timeout", None)  # type: Optional[float]
 
     def connect(self):
-        #AddressFamily.AF_BLUETOOTH # SocketKind.SOCK_STREAM # 3
         self.sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
         self.sock.connect((self.mac_address, 1))
 

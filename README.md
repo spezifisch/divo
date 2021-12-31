@@ -4,6 +4,10 @@ Divoom Pixoo and Divoom Timebox Evo python controller, packet builder/parser and
 
 This project aims to fully implement controlling everything the Pixoo can do. (WIP)
 
+## Requirements
+
+* Python 3.6+
+
 ## Examples
 
 Hints:
@@ -11,10 +15,12 @@ Hints:
 * you need a terminal that can render the colors to see the images properly 
 * add `--send --mac-address 11:75:58:xx:xx:xx` to send these packets to your Pixoo
 * add `--debug` for debug output
-* there are a lot of tests demo'ing most of the Pixoo modes in the sub-command `./main.py test` 
+* there are a lot of tests demo'ing most of the Pixoo modes in the sub-command `./main.py test`
+
+Send image file (16x16 px):
 
 ```shell
-python3 main.py img --send --mac-address 11:75:58:xx:xx:xx test.png
+./main.py img --send --mac-address 11:75:58:xx:xx:xx test.png
 ```
 
 Mudkip ([source](https://pixel.divoom-gz.com/#/pages/index/udetail?uid=400541387&suid=401026599)):

@@ -1,12 +1,27 @@
+"""
+This file is part of divo (https://github.com/spezifisch/divo).
+Copyright (c) 2021 spezifisch (https://github.com/spezifisch), carolosf (https://github.com/carolosf).
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 from loguru import logger
 from time import sleep
 from typing import Any, Optional
 
-from command import CommandParser, TimeType, ActivatedModes, Command, BoxMode, WeatherType
+from command import CommandParser, TimeType, ActivatedModes, Command, WeatherType
+from evo_encoder import EvoEncoder
+from evo_pixmap import RawPixmap
 from packet import Packet, ResponsePacket
 from pixoo import Pixoo
-from datetime import datetime
-from image import EvoEncoder, RawPixmap
+
 
 def parse_packet(data: Optional[bytes]) -> Any:
     return Packet.parse(CommandParser(), data)
@@ -158,32 +173,44 @@ def test_pattern(test: int, d: Pixoo):
         parse_packet(p)
         d.write(p)
     elif test == 12:
-        #d.set_music_visualizer(4)
-        #d.set_game(True, 0)
-        #d.set_score(50,999)
         d.set_time()
-        #d.set_time(datetime(2021, 12, 30, 23, 55, 59, 342380))
         d.set_light_mode_clock(TimeType.BIG, 0, 0, 255, ActivatedModes(clock=True, weather=True, temperature=True, date=False))
-        #d.set_light_mode_vj(1)
         d.set_brightness(10)
-        #val = bytes([BoxMode.USER_DEFINE])
-        #d.write_command(Command.SET_BOX_MODE, val)
-        # https://github.com/jfroehlich/node-p1x3lramen/blob/main/source/devices/pixoo.js
-        #https://github.com/DavidVentura/divoom/blob/master/divoom/protocol.py
-        #val = bytes([12, WeatherType.CLEAR])
-        #d.write_command(Command.SET_CLIMATE, val)
-
-        #val = bytes([0])
-        #d.write_command(Command.SET_24_HOUR, val)
 
         rp = RawPixmap(16,16)
         img = rp.load_image("test.png")
         pixels = rp.decode_image(img)
         rp.set_rgb_pixels(pixels)
+
         ee = EvoEncoder()
         x = ee.image_bytes(rp.get_pixel_data())
-        #print(bytes.hex(x))
         parse_packet(x)
         d.write(x)
+    elif test == 13:
+        d.set_music_visualizer(4)
+    elif test == 14:
+        d.set_game(True, 0)
+        sleep(1)
+        d.set_score(50,999)
+        sleep(1)
+        d.set_time()
+        d.set_light_mode_clock(TimeType.BIG, 0, 0, 255, ActivatedModes(clock=True, weather=True, temperature=True, date=False))
+        sleep(1)
+        d.set_light_mode_vj(1)
+        sleep(1)
+        d.set_brightness(10)
+        sleep(1)
+
+        #val = bytes([BoxMode.USER_DEFINE])
+        #d.write_command(Command.SET_BOX_MODE, val)
+        # https://github.com/jfroehlich/node-p1x3lramen/blob/main/source/devices/pixoo.js
+        # https://github.com/DavidVentura/divoom/blob/master/divoom/protocol.py
+
+        val = bytes([12, WeatherType.CLEAR])
+        d.write_command(Command.SET_CLIMATE, val)
+
+        val = bytes([0])
+        d.write_command(Command.SET_24_HOUR, val)
+        sleep(1)
     else:
         raise ValueError("invalid test id")

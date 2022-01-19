@@ -14,7 +14,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import serial
 
-from bluetooth_base import BluetoothBase
+from .bluetooth_base import BluetoothBase
 
 
 class BluetoothSerial(BluetoothBase):
@@ -24,6 +24,7 @@ class BluetoothSerial(BluetoothBase):
     To use this you would run the `rfcomm` command from bluez separately to establish the connection:
     $ sudo rfcomm connect rfcomm0 11:75:58:xx:xx:xx 1
     """
+
     def __init__(self, serial_device_file: str = "/dev/rfcomm0", **serial_args):
         if "timeout" not in serial_args:
             serial_args["timeout"] = 1

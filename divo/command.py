@@ -13,10 +13,11 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from enum import IntEnum
-from loguru import logger
-from typing import Optional, Any
+from typing import Any, Optional
 
-from command_base import CommandBase, CommandParserBase
+from loguru import logger
+
+from .command_base import CommandBase, CommandParserBase
 
 
 class Command(CommandBase):
@@ -83,6 +84,8 @@ class BoxMode(IntEnum):
     USER_DEFINE = 5
     WATCH = 6  # is actually score blue/red board
     SCORE = 7  # doesn't work?
+
+
 #  	const modes = {
 #   			clock: "00",
 #   			lighting: "01",
@@ -92,6 +95,7 @@ class BoxMode(IntEnum):
 #   			custom: "05",
 #   			score: "06"
 #   		};
+
 
 class LightMode(IntEnum):
     CLOCK = 0
@@ -104,13 +108,14 @@ class LightMode(IntEnum):
 
 class TimeType(IntEnum):
     """Different clock layouts that can be chosen"""
-    BIG = 0             # fullscreen
-    RAINBOW = 1         # rainbow
-    BORDER = 2          # boxed
-    ANALOG = 3          # analog square
-    BIG_INV = 4         # fullscreen negative
-    ANALOG_ROUND = 5    # analog round
-    SMALL = 6           # widescreen
+
+    BIG = 0  # fullscreen
+    RAINBOW = 1  # rainbow
+    BORDER = 2  # boxed
+    ANALOG = 3  # analog square
+    BIG_INV = 4  # fullscreen negative
+    ANALOG_ROUND = 5  # analog round
+    SMALL = 6  # widescreen
 
 
 class WeatherType(IntEnum):
@@ -124,7 +129,7 @@ class WeatherType(IntEnum):
 
 class ActivatedModes:
     @staticmethod
-    def get_default() -> 'ActivatedModes':
+    def get_default() -> "ActivatedModes":
         return ActivatedModes(clock=True)
 
     def __init__(self, **kwargs):
@@ -136,7 +141,7 @@ class ActivatedModes:
 
 class GetBoxMode:
     @staticmethod
-    def from_data(data: bytes) -> 'GetBoxMode':
+    def from_data(data: bytes) -> "GetBoxMode":
         return GetBoxMode(
             mode=data[0],
             temp_type=data[1],
@@ -178,21 +183,23 @@ class GetBoxMode:
         self.temp_b = kwargs.get("temp_b")
 
     def __str__(self):
-        return f"GetBoxMode<mode={self.mode} temp_type={self.temp_type} light_mode={self.light_mode} " + \
-               f"light_r={self.light_r} light_g={self.light_g} light_b={self.light_b} time_type={self.time_type} " + \
-               f"time_r={self.time_r} time_g={self.time_g} time_b={self.time_b} " + \
-               f"temp_r={self.temp_r} temp_g={self.temp_g} temp_b={self.temp_b}>"
+        return (
+            f"GetBoxMode<mode={self.mode} temp_type={self.temp_type} light_mode={self.light_mode} "
+            + f"light_r={self.light_r} light_g={self.light_g} light_b={self.light_b} time_type={self.time_type} "
+            + f"time_r={self.time_r} time_g={self.time_g} time_b={self.time_b} "
+            + f"temp_r={self.temp_r} temp_g={self.temp_g} temp_b={self.temp_b}>"
+        )
 
 
 class SetBoxColor:
     @staticmethod
-    def from_data(data: bytes) -> 'SetBoxColor':
+    def from_data(data: bytes) -> "SetBoxColor":
         # crap = 00 0a 0a 04 aa 7f 00 f4 01 00
         _ = data[:10]
 
         palette_len = data[10]
-        palette = data[11:11 + 3 * palette_len]
-        image = data[11 + 3 * palette_len:]
+        palette = data[11 : 11 + 3 * palette_len]
+        image = data[11 + 3 * palette_len :]
 
         return SetBoxColor(
             palette=palette,
@@ -212,12 +219,12 @@ class SetBoxColor:
 
 class SetMulBoxColor(SetBoxColor):
     @staticmethod
-    def from_data(data: bytes) -> 'SetBoxColor':
+    def from_data(data: bytes) -> "SetBoxColor":
         # crap = 2c 01 00 aa a2 00 1b 01 00
         _ = data[:9]
         palette_len = data[9]
-        palette = data[10:10 + 3 * palette_len]
-        image = data[10 + 3 * palette_len:]
+        palette = data[10 : 10 + 3 * palette_len]
+        image = data[10 + 3 * palette_len :]
 
         return SetBoxColor(
             palette=palette,

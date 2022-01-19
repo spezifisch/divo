@@ -12,7 +12,7 @@ This project aims to fully implement controlling everything the Pixoo can do. (W
 
 Hints:
 
-* you need a terminal that can render the colors to see the images properly 
+* you need a terminal that can render the colors to see the images properly
 * add `--send --mac-address 11:75:58:xx:xx:xx` to send these packets to your Pixoo
 * add `--debug` for debug output
 * there are a lot of tests demo'ing most of the Pixoo modes in the sub-command `./main.py test`

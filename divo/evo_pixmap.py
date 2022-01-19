@@ -17,14 +17,14 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import logging
-from typing import Tuple, List
+from typing import List, Tuple
 
 from PIL import Image, ImageEnhance
 
 RGBColor = Tuple[int, int, int]
 
 
-class RawPixmap():
+class RawPixmap:
 
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
@@ -104,8 +104,8 @@ class RawPixmap():
             logging.info("Loaded image size=%s type=%s", result.size, result.mode)
             return result
         except Exception:  # pylint: disable=broad-except
-            logging.warning('Failed to load image')
-            return Image.new('RGBA', (self._width, self._height), color='black')
+            logging.warning("Failed to load image")
+            return Image.new("RGBA", (self._width, self._height), color="black")
 
     @classmethod
     def blend_value(cls, under, over, a):
@@ -121,9 +121,9 @@ class RawPixmap():
         h = self._height
 
         image_mode = image.mode
-        target = Image.new('RGBA', (w, h), color='black')
+        target = Image.new("RGBA", (w, h), color="black")
 
-        source = image.convert('RGBA')
+        source = image.convert("RGBA")
         if dim:
             enhancer = ImageEnhance.Brightness(source)
             source = enhancer.enhance(0.5)
@@ -131,7 +131,7 @@ class RawPixmap():
         if source.size[0] != w or source.size[1] != h:
             source.thumbnail((w, h), Image.BICUBIC)
 
-        if image_mode == 'RGBA':
+        if image_mode == "RGBA":
             # Alpha to black
             for y in range(source.size[1]):
                 for x in range(source.size[0]):
@@ -140,25 +140,25 @@ class RawPixmap():
         offset = ((w - source.size[0]) // 2, (h - source.size[1]) // 2)
         target.paste(source, offset)
 
-        target = target.convert('RGB')
+        target = target.convert("RGB")
 
         return list(target.getdata())
 
     def view(self):
         def rgb_fg(r: int, g: int, b: int) -> str:
-            return '\x1b[38;2;' + str(r) + ';' + str(g) + ';' + str(b) + 'm'
+            return "\x1b[38;2;" + str(r) + ";" + str(g) + ";" + str(b) + "m"
 
-        print('\x1b[0;0H', end='')
+        print("\x1b[0;0H", end="")
 
         for y in range(self._height):
             res = []
             for x in range(self._width):
                 (r, g, b) = self.getPixel(x, y)
                 if r == 0 and g == 0 and b == 0:
-                    res.append(rgb_fg(20, 20, 20) + u'\u25A0')
+                    res.append(rgb_fg(20, 20, 20) + u"\u25A0")
                 else:
-                    res.append(rgb_fg(r, g, b) + u'\u25A0')
-            print(''.join(res))
+                    res.append(rgb_fg(r, g, b) + u"\u25A0")
+            print("".join(res))
 
     def pixel_list(self) -> List[RGBColor]:
         result = []

@@ -13,10 +13,10 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import abc
-from typing import Optional, Union, Any
+from typing import Any, Optional, Union
 
-from command_base import CommandBase, CommandParserBase
-from exceptions import PacketException
+from .command_base import CommandBase, CommandParserBase
+from .exceptions import PacketException
 
 
 class PacketBase(abc.ABC):

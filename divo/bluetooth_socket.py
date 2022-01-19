@@ -15,14 +15,15 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import socket
 from typing import Optional
 
-from bluetooth_base import BluetoothBase
-from exceptions import NotConnectedException
+from .bluetooth_base import BluetoothBase
+from .exceptions import NotConnectedException
 
 
 class BluetoothSocket(BluetoothBase):
     """
     Bluetooth connection using native Bluetooth socket support.
     """
+
     def __init__(self, mac_address, **kwargs):
         self.mac_address = mac_address
         self.sock = None

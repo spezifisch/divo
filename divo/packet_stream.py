@@ -14,8 +14,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 from loguru import logger
 
-import image
-from helpers import chunks
+from .helpers import chunks
+from .image import Color, ImageBuffer, Palette
 
 
 class PacketStreamDecoder:
@@ -29,13 +29,13 @@ class PacketStreamDecoder:
         self.image = self.parse_image(payload, self.palette)
 
     @staticmethod
-    def parse_palette(data: bytes) -> image.Palette:
-        ret = image.Palette()
-        ret.palette += [image.Color(*data[x:x + 3]) for x in range(0, len(data), 3)]
+    def parse_palette(data: bytes) -> Palette:
+        ret = Palette()
+        ret.palette += [Color(*data[x : x + 3]) for x in range(0, len(data), 3)]
         return ret
 
     @classmethod
-    def parse_image(cls, data: bytes, palette: image.Palette) -> image.ImageBuffer:
+    def parse_image(cls, data: bytes, palette: Palette) -> ImageBuffer:
         # parse byte data to binary string
         binary_string = ""
         for x in data:
@@ -56,7 +56,7 @@ class PacketStreamDecoder:
                 print(chunks(row_payload, bits_per_pixel))
 
         # build image
-        buf = image.ImageBuffer()
+        buf = ImageBuffer()
         for pos in range(0, len(binary_string) - 2, bits_per_pixel):
             pixel_no = int(pos / bits_per_pixel)
             x = pixel_no % buf.width
@@ -67,7 +67,7 @@ class PacketStreamDecoder:
                 logger.info(f"got extra crap after image: {extra_crap}")
                 break
 
-            idx = binary_string[pos:pos + bits_per_pixel][::-1]
+            idx = binary_string[pos : pos + bits_per_pixel][::-1]
             idx = int(idx, 2)
             try:
                 color = palette[idx]

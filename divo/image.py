@@ -51,12 +51,12 @@ class ImageBuffer:
         self.height = kwargs.get("height", self.width)
         self.default_value = kwargs.get("default_value", Color(0, 0, 0))
 
-        self.buf = [[self.default_value]*self.width for _ in range(self.height)]
+        self.buf = [[self.default_value] * self.width for _ in range(self.height)]
 
     def set(self, x: int, y: int, color: Color):
         self.buf[y][x] = color
 
-    def print_to(self, screen: 'Screen'):
+    def print_to(self, screen: "Screen"):
         for row in self.buf:
             for pixel in row:
                 screen.print_color(pixel)

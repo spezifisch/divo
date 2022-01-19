@@ -14,7 +14,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import abc
 from enum import IntEnum
-from typing import Optional, Any
+from typing import Any, Optional
 
 
 class CommandBase(IntEnum):

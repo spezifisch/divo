@@ -15,20 +15,21 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 from binascii import hexlify
-
-from loguru import logger
-import click
-
-import bluetooth_socket
-import command
-from evo_encoder import EvoEncoder
-from evo_pixmap import RawPixmap
-from helpers import clean_unhexlify
-import image
-import packet
-import packet_stream
-import pixoo
 from test import test_pattern
+
+import click
+from loguru import logger
+
+import divo.bluetooth_socket
+import divo.command
+import divo.image
+import divo.packet
+import divo.packet_stream
+import divo.pixoo
+
+from .evo_encoder import EvoEncoder
+from .evo_pixmap import RawPixmap
+from .helpers import clean_unhexlify
 
 
 def get_pixoo(mac_address: str) -> pixoo.Pixoo:
@@ -41,7 +42,7 @@ def get_pixoo(mac_address: str) -> pixoo.Pixoo:
 
 
 @click.group()
-@click.option('--debug/--no-debug', default=False)
+@click.option("--debug/--no-debug", default=False)
 @click.pass_context
 def cli(ctx, debug):
     ctx.ensure_object(dict)
@@ -113,13 +114,13 @@ def img(ctx, path, send, mac_address):
     screen = ctx.obj["screen"]
 
     print(path)
-    rp = RawPixmap(16,16)
+    rp = RawPixmap(16, 16)
     img = rp.load_image(path)
     rp.set_rgb_pixels(rp.decode_image(img))
 
     ee = EvoEncoder()
     data = ee.image_bytes(rp.get_pixel_data())
-    print("raw command: "+bytes.hex(data))
+    print("raw command: " + bytes.hex(data))
 
     packets = [clean_unhexlify(bytes.hex(data))]
     command_parser = command.CommandParser()

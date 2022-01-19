@@ -3,7 +3,8 @@ This file is part of divo (https://github.com/spezifisch/divo).
 Copyright (c) 2021 carolosf (https://github.com/carolosf), spezifisch ((https://github.com/spezifisch).
 Copyright (c) 2019 johsam (https://github.com/johsam).
 
-Original file: https://github.com/johsam/timebox-evo-rest/blob/80820d010a242a45d26e6ff3f9b2b53546beb66b/pixmap/rawpixmap.py
+Original file:
+https://github.com/johsam/timebox-evo-rest/blob/80820d010a242a45d26e6ff3f9b2b53546beb66b/pixmap/rawpixmap.py
 Modifications by carolosf, spezifisch.
 
 This program is free software: you can redistribute it and/or modify it under

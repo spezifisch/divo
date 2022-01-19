@@ -157,7 +157,7 @@ def test_pattern(test: int, d: Pixoo):
             d.set_light_mode_vj(i)
             sleep(1)
 
-        logger.info(f"VJ mode 2 again")
+        logger.info("VJ mode 2 again")
         d.set_light_mode_vj(2)
     elif test == 10:
         logger.info("clock mode border test")

@@ -6,9 +6,18 @@ This project aims to fully implement controlling everything the Pixoo can do. (W
 
 ## Requirements
 
-* Python 3.6+
+* Python 3.7+
+* Poetry (`pip install poetry`)
+
+Install dependencies using poetry:
+
+```shell
+poetry install --no-root
+```
 
 ## Examples
+
+Enter Poetry's virtualenv first with `poetry shell`, then try the following commands.
 
 Hints:
 

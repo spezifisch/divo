@@ -1,5 +1,0 @@
-loguru
-colorconsole
-click
-serial
-pillow

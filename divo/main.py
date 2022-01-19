@@ -20,24 +20,23 @@ from test import test_pattern
 import click
 from loguru import logger
 
-import divo.bluetooth_socket
-import divo.command
-import divo.image
-import divo.packet
-import divo.packet_stream
-import divo.pixoo
-
+from .bluetooth_socket import BluetoothSocket
+from .command import CommandParser
 from .evo_encoder import EvoEncoder
 from .evo_pixmap import RawPixmap
 from .helpers import clean_unhexlify
+from .image import Screen
+from .packet import Packet
+from .packet_stream import PacketStreamDecoder
+from .pixoo import Pixoo
 
 
-def get_pixoo(mac_address: str) -> pixoo.Pixoo:
+def get_pixoo(mac_address: str) -> Pixoo:
     if not mac_address:
         raise ValueError("no mac address given")
 
-    bt = bluetooth_socket.BluetoothSocket(mac_address, socket_timeout=2.0)
-    d = pixoo.Pixoo(bt)
+    bt = BluetoothSocket(mac_address, socket_timeout=2.0)
+    d = Pixoo(bt)
     return d
 
 
@@ -54,7 +53,7 @@ def cli(ctx, debug):
         logger.add(sys.stderr, level="INFO")
 
     # image may be rendered to different outputs later
-    ctx.obj["screen"] = image.Screen()
+    ctx.obj["screen"] = Screen()
 
 
 @cli.command()
@@ -65,7 +64,7 @@ def direct(ctx, args):
     palette = clean_unhexlify(palette)
     payload = clean_unhexlify(payload)
 
-    psd = packet_stream.PacketStreamDecoder(palette, payload)
+    psd = PacketStreamDecoder(palette, payload)
     psd.image.print_to(screen)
 
 
@@ -79,8 +78,8 @@ def raw(ctx, raw_data, send, mac_address):
 
     # parse all packets, one per argument
     packets = [clean_unhexlify(arg) for arg in raw_data]
-    command_parser = command.CommandParser()
-    commands = [packet.Packet.parse(command_parser, p) for p in packets]
+    command_parser = CommandParser()
+    commands = [Packet.parse(command_parser, p) for p in packets]
     if None in commands:
         missing = commands.index(None)
         raise ValueError(f"couldn't parse packet no. {missing}")
@@ -88,7 +87,7 @@ def raw(ctx, raw_data, send, mac_address):
     palette = commands[0].palette
     payload = commands[0].image  # TODO reassemble image data
 
-    psd = packet_stream.PacketStreamDecoder(palette, payload)
+    psd = PacketStreamDecoder(palette, payload)
 
     print("palette data:", hexlify(palette))
     print("palette:")
@@ -123,8 +122,8 @@ def img(ctx, path, send, mac_address):
     print("raw command: " + bytes.hex(data))
 
     packets = [clean_unhexlify(bytes.hex(data))]
-    command_parser = command.CommandParser()
-    commands = [packet.Packet.parse(command_parser, p) for p in packets]
+    command_parser = CommandParser()
+    commands = [Packet.parse(command_parser, p) for p in packets]
     if None in commands:
         missing = commands.index(None)
         raise ValueError(f"couldn't parse packet no. {missing}")
@@ -132,7 +131,7 @@ def img(ctx, path, send, mac_address):
     palette = commands[0].palette
     payload = commands[0].image  # TODO reassemble image data
 
-    psd = packet_stream.PacketStreamDecoder(palette, payload)
+    psd = PacketStreamDecoder(palette, payload)
 
     print("palette data:", hexlify(palette))
     print("palette:")

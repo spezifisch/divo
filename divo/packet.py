@@ -74,7 +74,8 @@ class Packet(PacketBase):
         wanted_checksum = sum(packet[1 : 3 + size - 2]) & 0xFFFF
         if checksum != wanted_checksum:
             raise PacketChecksumError(
-                f"checksum wrong, got: {Packet.__hex_checksum(checksum)} wanted: {Packet.__hex_checksum(wanted_checksum)}"
+                f"checksum wrong, got: {Packet.__hex_checksum(checksum)} "
+                + f"wanted: {Packet.__hex_checksum(wanted_checksum)}"
             )
 
         return parser.parse(cmd_type, data)

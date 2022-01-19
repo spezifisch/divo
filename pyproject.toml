@@ -1,14 +1,42 @@
+[tool.poetry]
+authors = ["spezifisch <spezifisch-gpl.7e6@below.fr>"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Operating System :: OS Independent",
+]
+description = ""
+homepage = "https://github.com/spezifisch/divo"
+include = [
+  "LICENSE",
+]
+keywords = ["divoom", "pixoo", "timebox", "evo"]
+license = "GPL-3.0-only"
+name = "divo"
+readme = "README.md"
+repository = "https://github.com/spezifisch/divo"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+Pillow = "^9.0.0"
+click = "^8.0.3"
+colorconsole = "^0.7.2"
+loguru = "^0.5.3"
+python = "^3.7"
+serial = "^0.0.97"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^4.0.1"
+mypy = "^0.931"
+black = "^21.12b0"
+pre-commit = "^2.17.0"
+
 [tool.black]
 line-length = 119
 
 [tool.isort]
 profile = "black"
 
-[[tool.mypy.overrides]]
-ignore_missing_imports = true
-module = [
-  "aioimaplib",
-  "strictyaml",
-]
-strict = true
-warn_return_any = false
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]

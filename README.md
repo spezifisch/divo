@@ -61,3 +61,16 @@ Palette 8 color test:
 ```shell
 ./main.py raw 01860044000a0a04aa7f00f4010008000000ff0000ff5500ffaa00ffff02adff0000ff00ffffff88c6fa0000e000000000001c000000008003000000007000000000000e00000000c001000000003800000000000700000000e000000000001c000000008003000000007000000000000e00000000c00100000000380000000000070000000000ee1602
 ```
+
+## Development
+
+### Build Dependencies
+
+Install dependencies and pre-commit hooks:
+
+```shell
+# you may need to install the following tools outside of your virtualenv, too:
+pip install poetry pre-commit
+poetry install --no-root
+poetry run pre-commit install
+```

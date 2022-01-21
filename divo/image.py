@@ -65,20 +65,20 @@ class ImageBuffer:
 
 
 class Screen:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.screen = terminal.get_terminal(conEmu=False)
-        self.block = kwargs.get("block", "██")
+        self.block = kwargs.get("block", "██")  # type: str
 
-    def print_color(self, color: Color):
+    def print_color(self, color: Color) -> None:
         self.screen.xterm24bit_set_fg_color(color.r, color.g, color.b)
         print(self.block, end="")
         self.screen.reset()
 
     @staticmethod
-    def line_end():
+    def line_end() -> None:
         print()
 
-    def print_palette(self, palette: List[Color]):
+    def print_palette(self, palette: List[Color]) -> None:
         print(f"Palette ({len(palette)}):")
         for i, color in enumerate(palette):
             print(i, end=" ")

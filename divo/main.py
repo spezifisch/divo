@@ -15,7 +15,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 from binascii import hexlify
-from test import test_pattern
+from typing import List
 
 import click
 from loguru import logger
@@ -29,6 +29,7 @@ from .image import Screen
 from .packet import Packet
 from .packet_stream import PacketStreamDecoder
 from .pixoo import Pixoo
+from .test import test_pattern
 
 
 def get_pixoo(mac_address: str) -> Pixoo:
@@ -43,7 +44,7 @@ def get_pixoo(mac_address: str) -> Pixoo:
 @click.group()
 @click.option("--debug/--no-debug", default=False)
 @click.pass_context
-def cli(ctx, debug):
+def cli(ctx: click.Context, debug: bool) -> None:
     ctx.ensure_object(dict)
 
     logger.remove()
@@ -57,14 +58,15 @@ def cli(ctx, debug):
 
 
 @cli.command()
+@click.argument("palette", nargs=1)
+@click.argument("payload", nargs=1)
 @click.pass_context
-def direct(ctx, args):
+def direct(ctx: click.Context, palette: str, payload: str) -> None:
     screen = ctx.obj["screen"]
-    palette, payload = args
     palette = clean_unhexlify(palette)
     payload = clean_unhexlify(payload)
 
-    psd = PacketStreamDecoder(palette, payload)
+    psd = PacketStreamDecoder(palette.encode("utf8"), payload.encode("utf8"))
     psd.image.print_to(screen)
 
 
@@ -73,7 +75,7 @@ def direct(ctx, args):
 @click.option("--send", is_flag=True)
 @click.option("--mac-address")
 @click.pass_context
-def raw(ctx, raw_data, send, mac_address):
+def raw(ctx: click.Context, raw_data: List[str], send: bool, mac_address: str) -> None:
     screen = ctx.obj["screen"]
 
     # parse all packets, one per argument
@@ -109,7 +111,7 @@ def raw(ctx, raw_data, send, mac_address):
 @click.option("--send", is_flag=True)
 @click.option("--mac-address")
 @click.pass_context
-def img(ctx, path, send, mac_address):
+def img(ctx: click.Context, path: str, send: bool, mac_address: str) -> None:
     screen = ctx.obj["screen"]
 
     print(path)
@@ -151,7 +153,7 @@ def img(ctx, path, send, mac_address):
 @cli.command()
 @click.option("--mac-address", required=True)
 @click.option("--test-id", default=1, required=True)
-def test(mac_address, test_id):
+def test(mac_address: str, test_id: int) -> None:
     dev = get_pixoo(mac_address)
 
     test_pattern(test_id, dev)

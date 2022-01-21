@@ -24,7 +24,7 @@ class BluetoothSocket(BluetoothBase):
     Bluetooth connection using native Bluetooth socket support.
     """
 
-    def __init__(self, mac_address, **kwargs):
+    def __init__(self, mac_address: str, **kwargs):
         self.mac_address = mac_address
         self.sock = None
         self.timeout = kwargs.get("socket_timeout", None)  # type: Optional[float]

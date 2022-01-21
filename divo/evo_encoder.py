@@ -23,7 +23,7 @@ from typing import List
 
 
 class EvoEncoder:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @staticmethod

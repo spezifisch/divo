@@ -31,6 +31,9 @@ mypy = "^0.931"
 black = "^21.12b0"
 pre-commit = "^2.17.0"
 
+[tool.poetry.scripts]
+divo = "divo.main:cli"
+
 [tool.black]
 line-length = 119
 

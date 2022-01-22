@@ -132,7 +132,7 @@ class ActivatedModes:
     def get_default() -> "ActivatedModes":
         return ActivatedModes(clock=True)
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.clock = kwargs.get("clock", False)
         self.weather = kwargs.get("weather", False)
         self.temperature = kwargs.get("temperature", False)

@@ -12,8 +12,9 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import math
 from time import sleep
-from typing import Any, Optional
+from typing import Any, Tuple
 
 from loguru import logger
 
@@ -24,15 +25,15 @@ from .packet import Packet, ResponsePacket
 from .pixoo import Pixoo
 
 
-def parse_packet(data: Optional[bytes]) -> Any:
+def parse_packet(data: bytes) -> Any:
     return Packet.parse(CommandParser(), data)
 
 
-def parse_response_packet(data: Optional[bytes]) -> Any:
+def parse_response_packet(data: bytes) -> Any:
     return ResponsePacket.parse(CommandParser(), data)
 
 
-def hsv_to_rgb(h, s, v):
+def hsv_to_rgb(h: int, s: int, v: int) -> Tuple[float, float, float]:
     """Convert HSV color space to RGB color space
     source: https://code.activestate.com/recipes/576554-covert-color-space-from-hsv-to-rgb-and-rgb-to-hsv/
     by Victor Lin, MIT license
@@ -42,7 +43,6 @@ def hsv_to_rgb(h, s, v):
     @param v: Value
     return (r, g, b)
     """
-    import math
 
     hi = math.floor(h / 60.0) % 6
     f = (h / 60.0) - math.floor(h / 60.0)
@@ -59,7 +59,7 @@ def hsv_to_rgb(h, s, v):
     }[hi]
 
 
-def test_pattern(test: int, d: Pixoo):
+def test_pattern(test: int, d: Pixoo) -> None:
     if test == 1:
         logger.info("sleep color test")
         d.set_sleep_color(100, 0, 0)
@@ -146,8 +146,8 @@ def test_pattern(test: int, d: Pixoo):
 
         for h in range(0, 255, 5):
             rgb = hsv_to_rgb(h, 1, 1)
-            rgb = [int(round(x * 255)) for x in rgb]
-            d.set_light_mode_light(*rgb)
+            r, g, b = [int(round(x * 255)) for x in rgb]
+            d.set_light_mode_light(r, g, b)
             sleep(0.1)
     elif test == 9:
         logger.info("VJ test")

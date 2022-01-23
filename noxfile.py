@@ -24,7 +24,11 @@ def lint(session):
     session.install("poetry")
     session.run("poetry", "install", "--no-root")
     dirs = ("divo",)
+
     # flake8 options, see: https://black.readthedocs.io/en/stable/faq.html#why-are-flake8-s-e203-and-w503-violated
     session.run("flake8", "--max-line-length=120", "--ignore=E203,W503", *dirs)
-    # TODO session.run("mypy", "--strict", *dirs)
+
     session.run("black", "--check", *dirs)
+
+    # TODO session.run("mypy", "--strict", *dirs)
+    session.run("mypy", *dirs)

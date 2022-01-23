@@ -17,11 +17,11 @@ import abc
 
 class BluetoothBase(abc.ABC):
     @abc.abstractmethod
-    def connect(self):
+    def connect(self) -> None:
         pass
 
     @abc.abstractmethod
-    def flush(self):
+    def flush(self) -> None:
         pass
 
     @abc.abstractmethod

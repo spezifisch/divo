@@ -13,7 +13,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from enum import IntEnum
-from typing import Any, Optional
+from typing import Any
 
 from loguru import logger
 
@@ -45,7 +45,7 @@ class Command(CommandBase):
 
 
 # when one of the following commands is sent the device doesn't send back a response
-without_response = [
+COMMANDS_WITHOUT_RESPONSE = [
     Command.SEND_APP_NEWEST_TIME,
     Command.SET_SLEEP_COLOR,
 ]
@@ -53,7 +53,7 @@ without_response = [
 
 class CommandParser(CommandParserBase):
     @staticmethod
-    def parse(cmd_type: int, data: Optional[bytes]) -> Any:
+    def parse(cmd_type: int, data: bytes) -> Any:
         if cmd_type == Command.SET_BOX_COLOR.value:
             return SetBoxColor.from_data(data)
         elif cmd_type == Command.SET_MUL_BOX_COLOR.value:
@@ -65,7 +65,7 @@ class CommandParser(CommandParserBase):
         return None
 
     @staticmethod
-    def parse_response(cmd_type: int, data: Optional[bytes]) -> Any:
+    def parse_response(cmd_type: int, data: bytes) -> Any:
         if cmd_type == Command.GET_BOX_MODE.value:
             return GetBoxMode.from_data(data)
         else:

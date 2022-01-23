@@ -14,7 +14,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 
 import abc
 from enum import IntEnum
-from typing import Any, Optional
+from typing import Any
 
 
 class CommandBase(IntEnum):
@@ -24,10 +24,10 @@ class CommandBase(IntEnum):
 class CommandParserBase(abc.ABC):
     @staticmethod
     @abc.abstractmethod
-    def parse(cmd_type: int, data: Optional[bytes]) -> Any:
+    def parse(cmd_type: int, data: bytes) -> Any:
         pass
 
     @staticmethod
     @abc.abstractmethod
-    def parse_response(cmd_type: int, data: Optional[bytes]) -> Any:
+    def parse_response(cmd_type: int, data: bytes) -> Any:
         pass

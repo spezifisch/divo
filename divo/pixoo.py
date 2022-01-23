@@ -17,11 +17,20 @@ from typing import Any, Optional, Union
 
 from loguru import logger
 
-import divo.command
-
 from .bluetooth_base import BluetoothBase
+from .command import (
+    COMMANDS_WITHOUT_RESPONSE,
+    ActivatedModes,
+    BoxMode,
+    Command,
+    CommandParser,
+    GetBoxMode,
+    LightMode,
+    TimeType,
+)
+from .command_base import CommandBase
 from .exceptions import PacketWriteException
-from .packet import CommandBase, Packet, ResponsePacket
+from .packet import Packet, ResponsePacket
 
 
 class Pixoo:
@@ -30,7 +39,7 @@ class Pixoo:
         self.comm.connect()
         self.comm.flush()
 
-        self.command_parser = divo.divo.command.CommandParser()
+        self.command_parser = CommandParser()
 
     def write(self, data: bytes) -> Union[Optional[bytes], Any]:
         """
@@ -47,7 +56,7 @@ class Pixoo:
         logger.debug(f"sending {list(data)}")
 
         cmd = data[3]
-        if cmd in divo.divo.command.without_response:
+        if cmd in COMMANDS_WITHOUT_RESPONSE:
             return None
 
         # read packet start marker and packet size
@@ -68,13 +77,13 @@ class Pixoo:
                         logger.debug(f"received {list(packet)}")
                         return ResponsePacket.parse(self.command_parser, packet)
                     else:
-                        logger.error(f"end marker not present: rest={rest}")
+                        logger.error(f"end marker not present: rest={rest!r}")
                 else:
                     logger.error("rest empty")
             else:
-                logger.error(f"received garbage: {response}")
+                logger.error(f"received garbage: {response!r}")
         else:
-            logger.error(f"didn't receive enough data for response, only: {response}")
+            logger.error(f"didn't receive enough data for response, only: {response!r}")
 
         return None
 
@@ -94,22 +103,22 @@ class Pixoo:
         if not (0 <= percent <= 100):
             raise ValueError("out of range")
 
-        return self.write_command(divo.command.Command.SET_SYSTEM_BRIGHTNESS, percent)
+        return self.write_command(Command.SET_SYSTEM_BRIGHTNESS, percent)
 
     def set_score(self, blue_score: int, red_score: int):
         rs_lo = red_score & 0xFF
         rs_hi = (red_score >> 8) & 0xFF
         bs_lo = blue_score & 0xFF
         bs_hi = (blue_score >> 8) & 0xFF
-        val = bytes([divo.command.BoxMode.WATCH, 0, rs_lo, rs_hi, bs_lo, bs_hi, 0, 0, 0, 0])
-        return self.write_command(divo.command.Command.SET_BOX_MODE, val)
+        val = bytes([BoxMode.WATCH, 0, rs_lo, rs_hi, bs_lo, bs_hi, 0, 0, 0, 0])
+        return self.write_command(Command.SET_BOX_MODE, val)
 
     def set_music_visualizer(self, visualizer: int):
         if not (0 <= visualizer <= 11):
             raise ValueError("visualizer id out of range")
 
-        val = bytes([divo.command.BoxMode.MUSIC, visualizer & 0xFF] + [0] * 8)
-        return self.write_command(divo.command.Command.SET_BOX_MODE, val)
+        val = bytes([BoxMode.MUSIC, visualizer & 0xFF] + [0] * 8)
+        return self.write_command(Command.SET_BOX_MODE, val)
 
     def set_time(self, ts: Optional[datetime] = None):
         if ts is None:
@@ -135,40 +144,42 @@ class Pixoo:
                 day_of_week,  # 0=sun, 1=mon, ..6=sat
             ]
         )
-        return self.write_command(divo.command.Command.SET_TIME, val)
+        return self.write_command(Command.SET_TIME, val)
 
     def set_game(self, enable: bool, game: int):
         if not (0 <= game <= 8):
             raise ValueError("game id out of range")
 
         val = bytes([int(enable), game])
-        return self.write_command(divo.command.Command.SET_GAME, val)
+        return self.write_command(Command.SET_GAME, val)
 
     def set_system_color(self, r: int, g: int, b: int):
         val = bytes([r & 0xFF, g & 0xFF, b & 0xFF])
-        return self.write_command(divo.command.Command.SET_SYSTEM_COLOR, val)
+        return self.write_command(Command.SET_SYSTEM_COLOR, val)
 
     def set_sleep_color(self, r: int, g: int, b: int):
         val = bytes([r & 0xFF, g & 0xFF, b & 0xFF])
-        return self.write_command(divo.command.Command.SET_SLEEP_COLOR, val)
+        return self.write_command(Command.SET_SLEEP_COLOR, val)
 
-    def get_box_mode(self) -> divo.command.GetBoxMode:
-        return self.write_command(divo.command.Command.GET_BOX_MODE)
+    def get_box_mode(self) -> GetBoxMode:
+        data = self.write_command(Command.GET_BOX_MODE)
+        assert isinstance(data, bytes)
+        return GetBoxMode.from_data(data)
 
     def set_light_mode_clock(
         self,
-        time_type: divo.command.TimeType,
+        time_type: TimeType,
         red: int,
         green: int,
         blue: int,
-        modes: Optional[divo.command.ActivatedModes] = None,
+        modes: Optional[ActivatedModes] = None,
     ):
         if modes is None:
-            modes = divo.command.ActivatedModes.get_default()
+            modes = ActivatedModes.get_default()
 
         val = bytes(
             [
-                divo.command.BoxMode.ENV.value,
+                BoxMode.ENV.value,
                 1,
                 time_type.value,
                 int(modes.clock),
@@ -180,12 +191,12 @@ class Pixoo:
                 blue,
             ]
         )
-        return self.write_command(divo.command.Command.SET_BOX_MODE, val)
+        return self.write_command(Command.SET_BOX_MODE, val)
 
-    def set_light_mode_temperature(self, box_mode: divo.command.GetBoxMode):
+    def set_light_mode_temperature(self, box_mode: GetBoxMode):
         val = bytes(
             [
-                divo.command.LightMode.TEMPERATURE.value,
+                LightMode.TEMPERATURE.value,
                 box_mode.temp_type,
                 box_mode.temp_r,
                 box_mode.temp_g,
@@ -193,28 +204,28 @@ class Pixoo:
                 0,
             ]
         )
-        return self.write_command(divo.command.Command.SET_BOX_MODE, val)
+        return self.write_command(Command.SET_BOX_MODE, val)
 
     def send_app_newest_time(self, value: Optional[bool]):
         if value is None:
-            value = -1 & 0xFF
+            data = -1 & 0xFF
         else:
-            value = int(value)
-        return self.write_command(divo.command.Command.SEND_APP_NEWEST_TIME, value)
+            data = int(value)
+        return self.write_command(Command.SEND_APP_NEWEST_TIME, data)
 
     def set_light_mode_light(
         self,
         red: int,
         green: int,
         blue: int,
-        modes: Optional[divo.command.ActivatedModes] = None,
+        modes: Optional[ActivatedModes] = None,
     ):
         if modes is None:
-            modes = divo.command.ActivatedModes.get_default()
+            modes = ActivatedModes.get_default()
 
         val = bytes(
             [
-                divo.command.BoxMode.LIGHT.value,
+                BoxMode.LIGHT.value,
                 red,
                 green,
                 blue,
@@ -226,11 +237,11 @@ class Pixoo:
                 int(modes.date),
             ]
         )
-        return self.write_command(divo.command.Command.SET_BOX_MODE, val)
+        return self.write_command(Command.SET_BOX_MODE, val)
 
     def set_light_mode_vj(self, pattern: int):
         if pattern < 0 or pattern > 15:
             raise ValueError("pattern id out of range")
 
-        val = bytes([divo.command.BoxMode.SPECIAL.value, pattern])
-        return self.write_command(divo.command.Command.SET_BOX_MODE, val)
+        val = bytes([BoxMode.SPECIAL.value, pattern])
+        return self.write_command(Command.SET_BOX_MODE, val)

@@ -38,10 +38,10 @@ class PacketStreamDecoder:
     def parse_image(cls, data: bytes, palette: Palette) -> ImageBuffer:
         # parse byte data to binary string
         binary_string = ""
-        for x in data:
-            y = f"{x:08b}"
-            y = y[::-1]
-            binary_string += y
+        for bx in data:
+            by = f"{bx:08b}"
+            by = by[::-1]
+            binary_string += by
 
         bits_per_pixel = palette.bits_per_pixel()
 
@@ -67,8 +67,8 @@ class PacketStreamDecoder:
                 logger.info(f"got extra crap after image: {extra_crap}")
                 break
 
-            idx = binary_string[pos : pos + bits_per_pixel][::-1]
-            idx = int(idx, 2)
+            bidx = binary_string[pos : pos + bits_per_pixel][::-1]
+            idx = int(bidx, 2)
             try:
                 color = palette[idx]
                 buf.set(x, y, color)

@@ -48,5 +48,9 @@ class ConnectionException(DivoException):
     pass
 
 
+class BluetoothSupportMissingException(ConnectionException):
+    pass
+
+
 class NotConnectedException(ConnectionException):
     pass

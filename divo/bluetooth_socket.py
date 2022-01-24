@@ -13,10 +13,11 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import socket
+import sysconfig
 from typing import Optional
 
 from .bluetooth_base import BluetoothBase
-from .exceptions import NotConnectedException
+from .exceptions import BluetoothSupportMissingException, NotConnectedException
 
 
 class BluetoothSocket(BluetoothBase):
@@ -24,13 +25,28 @@ class BluetoothSocket(BluetoothBase):
     Bluetooth connection using native Bluetooth socket support.
     """
 
-    def __init__(self, mac_address: str, **kwargs):
+    def __init__(self, mac_address: str, socket_timeout: Optional[float] = None):
         self.mac_address = mac_address
-        self.sock = None
-        self.timeout = kwargs.get("socket_timeout", None)  # type: Optional[float]
+        self.sock: Optional[socket.socket] = None
+        self.timeout = socket_timeout
 
-    def connect(self):
-        self.sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+        # workaround so we can at least make unit tests on python versions missing bluetooth support
+        self.BTPROTO_RFCOMM = 3
+        try:
+            self.BTPROTO_RFCOMM = socket.BTPROTO_RFCOMM  # type: ignore
+        except AttributeError:
+            pass
+
+        # check if bluetooth sockets are supported
+        # see https://stackoverflow.com/a/29108576
+        if (
+            not sysconfig.get_config_vars()["HAVE_BLUETOOTH_H"]
+            and not sysconfig.get_config_vars()["HAVE_BLUETOOTH_BLUETOOTH_H"]
+        ):
+            raise BluetoothSupportMissingException("Your Python interpreter is missing Bluetooth support.")
+
+    def connect(self) -> None:
+        self.sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, self.BTPROTO_RFCOMM)
         self.sock.connect((self.mac_address, 1))
 
         if self.timeout is not None:
@@ -39,8 +55,8 @@ class BluetoothSocket(BluetoothBase):
     def get_in_waiting(self) -> int:
         return 0
 
-    def flush(self):
-        pass
+    def flush(self) -> None:
+        return
 
     def write(self, data: bytes) -> int:
         if self.sock is None:

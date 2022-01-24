@@ -23,6 +23,7 @@ from typing import List, Tuple
 from PIL import Image, ImageEnhance
 
 RGBColor = Tuple[int, int, int]
+RGBAColor = Tuple[int, int, int, int]
 
 
 class RawPixmap:
@@ -40,20 +41,20 @@ class RawPixmap:
 
         self._width = width
         self._height = height
-        self._pixels = [(0, 0, 0)] * width * height  # type: List[RGBColor]
+        self._pixels: List[RGBColor] = [(0, 0, 0)] * width * height
         self.clear()
 
-    def clear(self):
+    def clear(self) -> None:
         for i, _ in enumerate(self._pixels):
             self._pixels[i] = self.BLACK
 
-    def setPixel(self, x: int, y: int, color: RGBColor):
+    def setPixel(self, x: int, y: int, color: RGBColor) -> None:
         self._pixels[(x % self._width) + (y % self._height) * self._width] = color
 
     def getPixel(self, x: int, y: int) -> RGBColor:
         return self._pixels[(x % self._width) + (y % self._height) * self._width]
 
-    def line(self, x: int, y: int, x2: int, y2: int, color: RGBColor):
+    def line(self, x: int, y: int, x2: int, y2: int, color: RGBColor) -> None:
         """Brensenham line algorithm"""
         steep = 0
         dx = abs(x2 - x)
@@ -90,7 +91,7 @@ class RawPixmap:
             d = d + (2 * dy)
         self.setPixel(x2, y2, color)
 
-    def set_rgb_pixels(self, data: List[RGBColor]):
+    def set_rgb_pixels(self, data: List[RGBColor]) -> None:
         self._pixels = list(data)
 
     def get_rgb_pixels(self) -> List[RGBColor]:
@@ -109,15 +110,14 @@ class RawPixmap:
             return Image.new("RGBA", (self._width, self._height), color="black")
 
     @classmethod
-    def blend_value(cls, under, over, a):
+    def blend_value(cls, under: int, over: int, a: int) -> int:
         return int((over * a + under * (255 - a)) / 255)
 
     @classmethod
-    def blend_rgba(cls, under, over):
+    def blend_rgba(cls, under: RGBAColor, over: RGBAColor) -> Tuple[int, ...]:
         return tuple([cls.blend_value(under[i], over[i], over[3]) for i in (0, 1, 2)] + [255])
 
     def decode_image(self, image: Image, dim: bool = False) -> List[RGBColor]:
-
         w = self._width
         h = self._height
 
@@ -145,7 +145,7 @@ class RawPixmap:
 
         return list(target.getdata())
 
-    def view(self):
+    def view(self) -> None:
         def rgb_fg(r: int, g: int, b: int) -> str:
             return "\x1b[38;2;" + str(r) + ";" + str(g) + ";" + str(b) + "m"
 
@@ -167,14 +167,3 @@ class RawPixmap:
             for x in range(self._width):
                 result.append(self.getPixel(x, y))
         return result
-
-    # def to_json(self) -> str:
-    #     pixmap = []
-    #     for y in range(self._height):
-    #         for x in range(self._width):
-    #             (r, g, b) = self.getPixel(x, y)
-    #             pixmap.append((r, g, b))
-
-    #     result = {'type': 'pixmap', 'width': self._width, 'height': self._height, 'pixmap': pixmap}
-
-    #     return json.dumps(result)

@@ -13,7 +13,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from enum import IntEnum
-from typing import Any
+from typing import Any, Optional
 
 from loguru import logger
 
@@ -162,27 +162,48 @@ class GetBoxMode:
             raw=data,
         )
 
-    def __init__(self, **kwargs):
-        self.raw = kwargs.get("raw")
+    def __init__(
+        self,
+        mode: int = 0,
+        temp_type: int = 0,
+        light_mode: int = 0,
+        light_r: int = 0,
+        light_g: int = 0,
+        light_b: int = 0,
+        light_level: int = 0,
+        level: int = 0,
+        music_type: int = 0,
+        sys_light: int = 0,
+        time_type: int = 0,
+        time_r: int = 0,
+        time_g: int = 0,
+        time_b: int = 0,
+        temp_r: int = 0,
+        temp_g: int = 0,
+        temp_b: int = 0,
+        raw: Optional[bytes] = None,
+    ) -> None:
+        self._raw: Optional[bytes] = raw
 
-        self.mode = kwargs.get("mode")
-        self.temp_type = kwargs.get("temp_type")
-        self.light_mode = kwargs.get("light_mode")
-        self.light_r = kwargs.get("light_r")
-        self.light_g = kwargs.get("light_g")
-        self.light_b = kwargs.get("light_b")
-        self.light_level = kwargs.get("light_level")
-        self.music_type = kwargs.get("music_type")
-        self.sys_light = kwargs.get("sys_light")
-        self.time_type = kwargs.get("time_type")
-        self.time_r = kwargs.get("time_r")
-        self.time_g = kwargs.get("time_g")
-        self.time_b = kwargs.get("time_b")
-        self.temp_r = kwargs.get("temp_r")
-        self.temp_g = kwargs.get("temp_g")
-        self.temp_b = kwargs.get("temp_b")
+        self.mode = mode
+        self.temp_type = temp_type
+        self.light_mode = light_mode
+        self.light_r = light_r
+        self.light_g = light_g
+        self.light_b = light_b
+        self.light_level = light_level
+        self.level = level
+        self.music_type = music_type
+        self.sys_light = sys_light
+        self.time_type = time_type
+        self.time_r = time_r
+        self.time_g = time_g
+        self.time_b = time_b
+        self.temp_r = temp_r
+        self.temp_g = temp_g
+        self.temp_b = temp_b
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"GetBoxMode<mode={self.mode} temp_type={self.temp_type} light_mode={self.light_mode} "
             + f"light_r={self.light_r} light_g={self.light_g} light_b={self.light_b} time_type={self.time_type} "

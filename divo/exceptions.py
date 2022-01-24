@@ -13,7 +13,12 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-class PacketException(Exception):
+class DivoException(Exception):
+    pass
+
+
+# PacketExceptions
+class PacketException(DivoException):
     pass
 
 
@@ -25,9 +30,23 @@ class PacketChecksumError(PacketException):
     pass
 
 
-class PacketWriteException(Exception):
+class PacketWriteException(PacketException):
     pass
 
 
-class NotConnectedException(Exception):
+# CommandExceptions
+class CommandException(DivoException):
+    pass
+
+
+class CommandNoReplyException(CommandException):
+    pass
+
+
+# ConnectionExceptions
+class ConnectionException(DivoException):
+    pass
+
+
+class NotConnectedException(ConnectionException):
     pass

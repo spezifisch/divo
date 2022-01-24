@@ -46,7 +46,7 @@ class Packet(PacketBase):
         return packet
 
     @staticmethod
-    def __hex_checksum(checksum: int):
+    def __hex_checksum(checksum: int) -> str:
         tmp = hex(checksum)
         return tmp[4:7] + tmp[2:4]
 

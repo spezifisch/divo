@@ -29,19 +29,19 @@ from .command import (
     TimeType,
 )
 from .command_base import CommandBase
-from .exceptions import PacketWriteException
+from .exceptions import CommandNoReplyException, PacketWriteException
 from .packet import Packet, ResponsePacket
 
 
 class Pixoo:
-    def __init__(self, bt_device: BluetoothBase):
+    def __init__(self, bt_device: BluetoothBase) -> None:
         self.comm = bt_device
         self.comm.connect()
         self.comm.flush()
 
         self.command_parser = CommandParser()
 
-    def write(self, data: bytes) -> Union[Optional[bytes], Any]:
+    def write(self, data: bytes) -> Optional[Any]:
         """
         send raw data to Pixoo and receive and parse response packet
 
@@ -88,8 +88,8 @@ class Pixoo:
         return None
 
     def write_command(
-        self, cmd: CommandBase, cmd_data: Optional[Union[bytes, int]] = None
-    ) -> Union[Optional[bytes], Any]:
+        self, cmd: CommandBase, cmd_data: Optional[Union[bytes, int]] = None, need_response: bool = False
+    ) -> Optional[Any]:
         """
         send command with payload and receive response if there is any
 
@@ -97,30 +97,41 @@ class Pixoo:
         :param cmd_data: raw data, command-specific
         :return: parsed ResponsePacket if we received it successfully
         """
-        return self.write(Packet.build(cmd, cmd_data))
+        resp = self.write(Packet.build(cmd, cmd_data))
+        if need_response and resp is None:
+            raise CommandNoReplyException(f"expected a reply to command {cmd.value}")
 
-    def set_brightness(self, percent: int):
+        return resp
+
+    def write_command_with_response(
+        self, cmd: CommandBase, cmd_data: Optional[Union[bytes, int]] = None
+    ) -> ResponsePacket:
+        resp = self.write_command(cmd, cmd_data, need_response=True)
+        assert isinstance(resp, ResponsePacket)
+        return resp
+
+    def set_brightness(self, percent: int) -> ResponsePacket:
         if not (0 <= percent <= 100):
             raise ValueError("out of range")
 
-        return self.write_command(Command.SET_SYSTEM_BRIGHTNESS, percent)
+        return self.write_command_with_response(Command.SET_SYSTEM_BRIGHTNESS, percent)
 
-    def set_score(self, blue_score: int, red_score: int):
+    def set_score(self, blue_score: int, red_score: int) -> ResponsePacket:
         rs_lo = red_score & 0xFF
         rs_hi = (red_score >> 8) & 0xFF
         bs_lo = blue_score & 0xFF
         bs_hi = (blue_score >> 8) & 0xFF
         val = bytes([BoxMode.WATCH, 0, rs_lo, rs_hi, bs_lo, bs_hi, 0, 0, 0, 0])
-        return self.write_command(Command.SET_BOX_MODE, val)
+        return self.write_command_with_response(Command.SET_BOX_MODE, val)
 
-    def set_music_visualizer(self, visualizer: int):
+    def set_music_visualizer(self, visualizer: int) -> ResponsePacket:
         if not (0 <= visualizer <= 11):
             raise ValueError("visualizer id out of range")
 
         val = bytes([BoxMode.MUSIC, visualizer & 0xFF] + [0] * 8)
-        return self.write_command(Command.SET_BOX_MODE, val)
+        return self.write_command_with_response(Command.SET_BOX_MODE, val)
 
-    def set_time(self, ts: Optional[datetime] = None):
+    def set_time(self, ts: Optional[datetime] = None) -> ResponsePacket:
         if ts is None:
             ts = datetime.now()
 
@@ -144,22 +155,22 @@ class Pixoo:
                 day_of_week,  # 0=sun, 1=mon, ..6=sat
             ]
         )
-        return self.write_command(Command.SET_TIME, val)
+        return self.write_command_with_response(Command.SET_TIME, val)
 
-    def set_game(self, enable: bool, game: int):
+    def set_game(self, enable: bool, game: int) -> ResponsePacket:
         if not (0 <= game <= 8):
             raise ValueError("game id out of range")
 
         val = bytes([int(enable), game])
-        return self.write_command(Command.SET_GAME, val)
+        return self.write_command_with_response(Command.SET_GAME, val)
 
-    def set_system_color(self, r: int, g: int, b: int):
+    def set_system_color(self, r: int, g: int, b: int) -> ResponsePacket:
         val = bytes([r & 0xFF, g & 0xFF, b & 0xFF])
-        return self.write_command(Command.SET_SYSTEM_COLOR, val)
+        return self.write_command_with_response(Command.SET_SYSTEM_COLOR, val)
 
-    def set_sleep_color(self, r: int, g: int, b: int):
+    def set_sleep_color(self, r: int, g: int, b: int) -> None:
         val = bytes([r & 0xFF, g & 0xFF, b & 0xFF])
-        return self.write_command(Command.SET_SLEEP_COLOR, val)
+        self.write_command(Command.SET_SLEEP_COLOR, val)
 
     def get_box_mode(self) -> GetBoxMode:
         data = self.write_command(Command.GET_BOX_MODE)
@@ -173,7 +184,7 @@ class Pixoo:
         green: int,
         blue: int,
         modes: Optional[ActivatedModes] = None,
-    ):
+    ) -> ResponsePacket:
         if modes is None:
             modes = ActivatedModes.get_default()
 
@@ -191,9 +202,9 @@ class Pixoo:
                 blue,
             ]
         )
-        return self.write_command(Command.SET_BOX_MODE, val)
+        return self.write_command_with_response(Command.SET_BOX_MODE, val)
 
-    def set_light_mode_temperature(self, box_mode: GetBoxMode):
+    def set_light_mode_temperature(self, box_mode: GetBoxMode) -> ResponsePacket:
         val = bytes(
             [
                 LightMode.TEMPERATURE.value,
@@ -204,14 +215,14 @@ class Pixoo:
                 0,
             ]
         )
-        return self.write_command(Command.SET_BOX_MODE, val)
+        return self.write_command_with_response(Command.SET_BOX_MODE, val)
 
-    def send_app_newest_time(self, value: Optional[bool]):
+    def send_app_newest_time(self, value: Optional[bool]) -> None:
         if value is None:
             data = -1 & 0xFF
         else:
             data = int(value)
-        return self.write_command(Command.SEND_APP_NEWEST_TIME, data)
+        self.write_command(Command.SEND_APP_NEWEST_TIME, data)
 
     def set_light_mode_light(
         self,
@@ -219,7 +230,7 @@ class Pixoo:
         green: int,
         blue: int,
         modes: Optional[ActivatedModes] = None,
-    ):
+    ) -> ResponsePacket:
         if modes is None:
             modes = ActivatedModes.get_default()
 
@@ -237,11 +248,11 @@ class Pixoo:
                 int(modes.date),
             ]
         )
-        return self.write_command(Command.SET_BOX_MODE, val)
+        return self.write_command_with_response(Command.SET_BOX_MODE, val)
 
-    def set_light_mode_vj(self, pattern: int):
+    def set_light_mode_vj(self, pattern: int) -> ResponsePacket:
         if pattern < 0 or pattern > 15:
             raise ValueError("pattern id out of range")
 
         val = bytes([BoxMode.SPECIAL.value, pattern])
-        return self.write_command(Command.SET_BOX_MODE, val)
+        return self.write_command_with_response(Command.SET_BOX_MODE, val)

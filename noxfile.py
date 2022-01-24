@@ -30,5 +30,4 @@ def lint(session):
 
     session.run("black", "--check", *dirs)
 
-    # TODO session.run("mypy", "--strict", *dirs)
-    session.run("mypy", *dirs)
+    session.run("mypy", "--strict", *dirs)

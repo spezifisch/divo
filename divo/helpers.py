@@ -13,12 +13,13 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from binascii import unhexlify
+from typing import List
 
 
-def clean_unhexlify(val: str):
+def clean_unhexlify(val: str) -> bytes:
     val = val.strip().replace(" ", "").replace("\n", "")
     return unhexlify(val)
 
 
-def chunks(s: str, n: int):
+def chunks(s: str, n: int) -> List[str]:
     return [s[i : i + n] for i in range(0, len(s), n)]

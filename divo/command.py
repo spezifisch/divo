@@ -132,11 +132,11 @@ class ActivatedModes:
     def get_default() -> "ActivatedModes":
         return ActivatedModes(clock=True)
 
-    def __init__(self, **kwargs) -> None:
-        self.clock = kwargs.get("clock", False)
-        self.weather = kwargs.get("weather", False)
-        self.temperature = kwargs.get("temperature", False)
-        self.date = kwargs.get("date", False)
+    def __init__(self, clock: bool = False, weather: bool = False, temperature: bool = False, date: bool = False):
+        self.clock = clock
+        self.weather = weather
+        self.temperature = temperature
+        self.date = date
 
 
 class GetBoxMode:
@@ -182,7 +182,7 @@ class GetBoxMode:
         temp_g: int = 0,
         temp_b: int = 0,
         raw: Optional[bytes] = None,
-    ) -> None:
+    ):
         self._raw: Optional[bytes] = raw
 
         self.mode = mode
@@ -228,14 +228,14 @@ class SetBoxColor:
             raw=data,
         )
 
-    def __init__(self, **kwargs):
-        self.raw = kwargs.get("raw")
+    def __init__(self, raw: bytes, palette: bytes, image: bytes):
+        self.raw = raw
 
-        self.palette = kwargs.get("palette")
-        self.image = kwargs.get("image")
+        self.palette = palette
+        self.image = image
 
-    def __str__(self):
-        return f"SetBoxColor<palette={self.palette} image={self.image}>"
+    def __str__(self) -> str:
+        return f"SetBoxColor<palette={self.palette!r} image={self.image!r}>"
 
 
 class SetMulBoxColor(SetBoxColor):

@@ -63,10 +63,10 @@ def cli(ctx: click.Context, debug: bool) -> None:
 @click.pass_context
 def direct(ctx: click.Context, palette: str, payload: str) -> None:
     screen = ctx.obj["screen"]
-    palette = clean_unhexlify(palette)
-    payload = clean_unhexlify(payload)
+    bpalette = clean_unhexlify(palette)
+    bpayload = clean_unhexlify(payload)
 
-    psd = PacketStreamDecoder(palette.encode("utf8"), payload.encode("utf8"))
+    psd = PacketStreamDecoder(bpalette, bpayload)
     psd.image.print_to(screen)
 
 

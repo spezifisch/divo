@@ -13,7 +13,7 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from math import ceil, log
-from typing import List
+from typing import List, Optional
 
 from colorconsole import terminal
 
@@ -24,39 +24,47 @@ class Color:
         self.g = g
         self.b = b
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Color({self.r}, {self.g}, {self.b})"
 
 
 class Palette:
-    def __init__(self):
-        self.palette = []
+    def __init__(self) -> None:
+        self.palette: List[Color] = []
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: int) -> Color:
         return self.palette[item]
 
-    def clear(self):
+    def clear(self) -> None:
         self.palette.clear()
 
     def bits_per_pixel(self) -> int:
         return ceil(log(len(self.palette), 2))
 
-    def print_to(self, screen: "Screen"):
+    def print_to(self, screen: "Screen") -> None:
         screen.print_palette(self.palette)
 
 
 class ImageBuffer:
-    def __init__(self, **kwargs):
-        self.width = kwargs.get("width", 16)
-        self.height = kwargs.get("height", self.width)
-        self.default_value = kwargs.get("default_value", Color(0, 0, 0))
+    def __init__(self, width: int = 16, height: Optional[int] = None, default_value: Optional[Color] = None):
+        self.width = width
+
+        if height is None:
+            self.height = self.width
+        else:
+            self.height = height
+
+        if default_value is None:
+            self.default_value = Color(0, 0, 0)
+        else:
+            self.default_value = default_value
 
         self.buf = [[self.default_value] * self.width for _ in range(self.height)]
 
-    def set(self, x: int, y: int, color: Color):
+    def set(self, x: int, y: int, color: Color) -> None:
         self.buf[y][x] = color
 
-    def print_to(self, screen: "Screen"):
+    def print_to(self, screen: "Screen") -> None:
         for row in self.buf:
             for pixel in row:
                 screen.print_color(pixel)
@@ -65,9 +73,9 @@ class ImageBuffer:
 
 
 class Screen:
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, block: str = "██") -> None:
         self.screen = terminal.get_terminal(conEmu=False)
-        self.block = kwargs.get("block", "██")  # type: str
+        self.block = block
 
     def print_color(self, color: Color) -> None:
         self.screen.xterm24bit_set_fg_color(color.r, color.g, color.b)

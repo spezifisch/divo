@@ -21,8 +21,10 @@ from .packet_base import PacketBase
 
 class Packet(PacketBase):
     @classmethod
-    def build(cls, cmd: CommandBase, payload: Optional[Union[bytes, int]] = None) -> bytes:
+    def build(cls, cmd: CommandBase, payload: Union[bytes, int, None] = None) -> bytes:
+        # many commands only have one or no bytes payload
         if isinstance(payload, int):
+            # for convenience if only a single byte is sent
             payload = bytes([payload])
         elif payload is None:
             payload = b""

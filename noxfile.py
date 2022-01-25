@@ -19,6 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import nox
 
 
+@nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
+def tests(session):
+    session.install("poetry")
+    session.run("poetry", "install")
+    session.run("coverage", "run", "--source=divo", "-m", "pytest")
+    session.run("coverage", "report")
+
+
 @nox.session(reuse_venv=True)
 def lint(session):
     session.install("poetry")

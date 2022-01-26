@@ -73,17 +73,49 @@ class TestBluetoothSocket(unittest.TestCase):
             with self.assertRaises(NotConnectedException):
                 s.read(1)
 
+    # to run unit tests in python builds without bt support we need this...
+    @patch("socket.AF_BLUETOOTH", 23, create=True)
+    @patch("socket.BTPROTO_RFCOMM", 42, create=True)
     def test_connect(self) -> None:
-        with patch("sysconfig.get_config_vars", autospec=True) as mock:
-            mock.return_value = self.config_vars_with_bluetooth
+        with patch("sysconfig.get_config_vars", autospec=True) as mock_cfg:
+            mock_cfg.return_value = self.config_vars_with_bluetooth
 
-            s = BluetoothSocket(self.mac)
-            assert s.sock is None
-            assert s.get_in_waiting() == 0
-            assert s.flush() is None
+            with patch("socket.socket", autospec=True) as mock_sock:
+                s = BluetoothSocket(self.mac)
+                assert s.sock is None
 
-            with self.assertRaises(NotConnectedException):
-                s.write(b"\x23")
+                s.connect()
+                assert s.sock is not None
+                mock_sock.assert_called_once()
+                # check for our fake values patched with the decorators
+                assert mock_sock.call_args.args[0] == 23
+                assert mock_sock.call_args.args[2] == 42
+                mock_sock.return_value.connect.assert_called_once_with((self.mac, 1))
+                mock_sock.return_value.settimeout.assert_not_called()
 
-            with self.assertRaises(NotConnectedException):
-                s.read(1)
+                # send data
+                data = b"\x12\x34"
+                s.write(data)
+                mock_sock.return_value.send.assert_called_once_with(data)
+
+                # receive data
+                data = b"\x12\x23"
+                count = 2
+                mock_sock.return_value.recv.return_value = data
+                received_data = s.read(count)
+                mock_sock.return_value.recv.assert_called_once_with(count)
+                assert received_data == data
+
+            # test timeout setting
+            with patch("socket.socket", autospec=True) as mock_sock:
+                timeout = 123.45
+                s = BluetoothSocket(self.mac, timeout)
+                assert s.sock is None
+
+                s.connect()
+                assert s.sock is not None
+                mock_sock.assert_called_once()
+                assert mock_sock.call_args.args[0] == 23
+                assert mock_sock.call_args.args[2] == 42
+                mock_sock.return_value.connect.assert_called_once_with((self.mac, 1))
+                mock_sock.return_value.settimeout.assert_called_once_with(timeout)

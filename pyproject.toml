@@ -39,6 +39,14 @@ divo = "divo.main:cli"
 [tool.black]
 line-length = 119
 
+[tool.coverage.run]
+branch = true
+source = ["divo"]
+
+[tool.coverage.report]
+exclude_lines = ["@abstractmethod", "@abc.abstractmethod", "if __name__ == .__main__.:"]
+show_missing = true
+
 [tool.isort]
 profile = "black"
 

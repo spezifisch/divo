@@ -23,7 +23,7 @@ import nox
 def tests(session):
     session.install("poetry")
     session.run("poetry", "install")
-    session.run("coverage", "run", "--source=divo", "-m", "pytest")
+    session.run("coverage", "run", "-m", "pytest")
     session.run("coverage", "report")
 
 

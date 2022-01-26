@@ -28,6 +28,9 @@ class TestBluetoothSerial(unittest.TestCase):
 
     def test_default(self, mock_serial: MagicMock) -> None:
         mock_serial.return_value.in_waiting = 1
+        mock_serial.return_value.write.return_value = 2
+        read_data = b"\x12\x34"
+        mock_serial.return_value.read.return_value = read_data
 
         s = BluetoothSerial()
         mock_serial.assert_called_once_with("/dev/rfcomm0", timeout=1)
@@ -36,3 +39,14 @@ class TestBluetoothSerial(unittest.TestCase):
         assert s.get_in_waiting() == 1
         assert s.flush() is None
         mock_serial.return_value.reset_output_buffer.assert_called_once_with()
+
+        write_data = b"\x23\x42"
+        assert s.write(write_data) == 2
+        mock_serial.return_value.write.assert_called_once_with(write_data)
+
+        assert s.read(2) == read_data
+        mock_serial.return_value.read.assert_called_once_with(2)
+
+    def test_args(self, mock_serial: MagicMock) -> None:
+        BluetoothSerial(self.dev, timeout=23, foo=42)
+        mock_serial.assert_called_once_with(self.dev, timeout=23, foo=42)

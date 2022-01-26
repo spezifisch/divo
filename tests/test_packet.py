@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import unittest
-from unittest.mock import patch
 
 from divo.command import Command, CommandParser
 from divo.exceptions import PacketChecksumError, PacketParsingError

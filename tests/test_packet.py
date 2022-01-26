@@ -64,7 +64,7 @@ class TestPacket(unittest.TestCase):
 
     def test_parse_bad_checksum(self) -> None:
         raw = b"\x01\x04\x00t\x17\x12\x34\x02"
-        with self.assertRaises(PacketChecksumError) as ctx:
+        with self.assertRaises(PacketChecksumError):
             Packet.parse(CommandParser, raw)
 
     def test_validating(self) -> None:
@@ -87,31 +87,31 @@ class TestResponsePacket(unittest.TestCase):
     def test_parse_incomplete(self) -> None:
         raw = b"\x01"
         with self.assertRaises(PacketParsingError) as ctx:
-            p = ResponsePacket.parse(CommandParser, raw)
+            ResponsePacket.parse(CommandParser, raw)
         assert str(ctx.exception) == "packet incomplete"
 
     def test_parse_bad_start(self) -> None:
         raw = b"\x23\x03\x00\x04\x17\x55\x02"
         with self.assertRaises(PacketParsingError) as ctx:
-            p = ResponsePacket.parse(CommandParser, raw)
+            ResponsePacket.parse(CommandParser, raw)
         assert str(ctx.exception).startswith("START_OF_PACKET value wrong")
 
     def test_parse_bad_end(self) -> None:
         raw = b"\x01\x03\x00\x04\x17\x55\x23"
         with self.assertRaises(PacketParsingError) as ctx:
-            p = ResponsePacket.parse(CommandParser, raw)
+            ResponsePacket.parse(CommandParser, raw)
         assert str(ctx.exception).startswith("END_OF_PACKET value wrong")
 
     def test_parse_bad_magic1(self) -> None:
         raw = b"\x01\x03\x00\x23\x17\x55\x02"
         with self.assertRaises(PacketParsingError) as ctx:
-            p = ResponsePacket.parse(CommandParser, raw)
+            ResponsePacket.parse(CommandParser, raw)
         assert str(ctx.exception).startswith("MAGIC_CHECK value wrong")
 
     def test_parse_bad_magic2(self) -> None:
         raw = b"\x01\x03\x00\x04\x17\x23\x02"
         with self.assertRaises(PacketParsingError) as ctx:
-            p = ResponsePacket.parse(CommandParser, raw)
+            ResponsePacket.parse(CommandParser, raw)
         assert str(ctx.exception).startswith("MAGIC_UNK1 value wrong")
 
     def test_validating(self) -> None:

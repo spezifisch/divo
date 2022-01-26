@@ -34,7 +34,7 @@ def lint(session):
     dirs = ("divo", "tests")
 
     # flake8 options, see: https://black.readthedocs.io/en/stable/faq.html#why-are-flake8-s-e203-and-w503-violated
-    session.run("flake8", "--max-line-length=120", "--ignore=E203,W503", *dirs)
+    session.run("flake8", *dirs)
 
     session.run("black", "--check", *dirs)
 

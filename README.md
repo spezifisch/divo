@@ -17,6 +17,12 @@ Install dependencies using poetry:
 poetry install --no-root
 ```
 
+If you want to use the included REST API server you need to install extra dependencies:
+
+```shell
+poetry install --no-root --extras rest
+```
+
 ## Examples
 
 Hints:

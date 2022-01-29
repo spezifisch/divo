@@ -18,11 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import nox
 
+extras = ["--extras=rest"]
+
 
 @nox.session(python=["3.7", "3.8", "3.9", "3.10"], reuse_venv=True)
 def tests(session):
     session.install("poetry")
-    session.run("poetry", "install")
+    session.run("poetry", "install", *extras)
     session.run("coverage", "run", "-m", "pytest", "-vv")
     session.run("coverage", "report")
 
@@ -30,7 +32,7 @@ def tests(session):
 @nox.session(reuse_venv=True)
 def lint(session):
     session.install("poetry")
-    session.run("poetry", "install", "--no-root")
+    session.run("poetry", "install", "--no-root", *extras)
     dirs = ("divo", "tests")
 
     # flake8 options, see: https://black.readthedocs.io/en/stable/faq.html#why-are-flake8-s-e203-and-w503-violated

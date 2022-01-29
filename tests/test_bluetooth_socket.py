@@ -88,8 +88,8 @@ class TestBluetoothSocket(unittest.TestCase):
                 assert s.sock is not None
                 mock_sock.assert_called_once()
                 # check for our fake values patched with the decorators
-                assert mock_sock.call_args.args[0] == 23
-                assert mock_sock.call_args.args[2] == 42
+                assert mock_sock.call_args[0][0] == 23
+                assert mock_sock.call_args[0][2] == 42
                 mock_sock.return_value.connect.assert_called_once_with((self.mac, 1))
                 mock_sock.return_value.settimeout.assert_not_called()
 
@@ -115,7 +115,7 @@ class TestBluetoothSocket(unittest.TestCase):
                 s.connect()
                 assert s.sock is not None
                 mock_sock.assert_called_once()
-                assert mock_sock.call_args.args[0] == 23
-                assert mock_sock.call_args.args[2] == 42
+                assert mock_sock.call_args[0][0] == 23
+                assert mock_sock.call_args[0][2] == 42
                 mock_sock.return_value.connect.assert_called_once_with((self.mac, 1))
                 mock_sock.return_value.settimeout.assert_called_once_with(timeout)

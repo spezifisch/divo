@@ -30,6 +30,5 @@ jobs:
                   python -m pip install --upgrade pip
                   python -m pip install nox
             - name: Test
-              continue-on-error: true
               run: |
                   nox -p 3.7 -s tests

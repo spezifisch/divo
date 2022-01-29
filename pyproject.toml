@@ -25,6 +25,7 @@ fastapi = {version = "^0.73.0", optional = true}
 loguru = "^0.5.3"
 pyserial = "^3.5"
 python = "^3.7"
+uvicorn = {version = "^0.17.1", optional = true}
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
@@ -35,17 +36,18 @@ pre-commit = "^2.17.0"
 pytest = "^6.2.5"
 
 [tool.poetry.extras]
-rest = ["fastapi"]
+rest = ["fastapi", "uvicorn"]
 
 [tool.poetry.scripts]
 divo = "divo.main:cli"
+divo_rest = "divo.rest.app:run"
 
 [tool.black]
 line-length = 119
 
 [tool.coverage.run]
 branch = true
-source = ["divo"]
+source = ["divo", "divo/rest"]
 
 [tool.coverage.report]
 exclude_lines = ["@abstractmethod", "@abc.abstractmethod", "if __name__ == .__main__.:"]
@@ -60,6 +62,9 @@ module = [
   "colorconsole",
   "PIL",
   "serial",
+  "uvicorn", # for rest api...
+  "fastapi",
+  "pydantic",
 ]
 
 [build-system]

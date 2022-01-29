@@ -16,6 +16,16 @@ pip install divo
 
 This installs the `divo` command in your `PATH`.
 
+### REST API
+
+If you want to use the REST API you need to install the `rest` extra dependencies with:
+
+```shell
+pip install "divo[rest]"
+```
+
+After that you can run `divo_rest`.
+
 ## Build
 
 You can run divo from this repository or build the package yourself if you don't want to use the latest stable release from pypi.
@@ -37,7 +47,7 @@ If you want to use the included REST API server you need to install extra depend
 poetry install --no-root --extras rest
 ```
 
-After installing the dependencies you can run divo using `poetry run divo`.
+After installing the dependencies you can run divo using `poetry run divo` or start the REST API server with `poetry run divo_rest`.
 
 ### Install from repository
 
@@ -47,7 +57,7 @@ To install the package `divo` use:
 poetry install
 ```
 
-This installs the `divo` command in your `PATH`.
+This installs the `divo` and `divo_rest` commands in your `PATH`. Note that you can only run `divo_rest` if you have installed its extra dependencies.
 
 ## Examples
 

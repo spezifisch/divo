@@ -44,6 +44,7 @@ def get_pixoo(mac_address: str) -> Pixoo:
 @click.group()
 @click.option("--debug/--no-debug", default=False)
 @click.pass_context
+@logger.catch
 def cli(ctx: click.Context, debug: bool) -> None:
     ctx.ensure_object(dict)
 

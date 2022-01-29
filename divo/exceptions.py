@@ -1,6 +1,6 @@
 """
 This file is part of divo (https://github.com/spezifisch/divo).
-Copyright (c) 2021 spezifisch (https://github.com/spezifisch).
+Copyright (c) 2021-2022 spezifisch (https://github.com/spezifisch).
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -53,4 +53,13 @@ class BluetoothSupportMissingException(ConnectionException):
 
 
 class NotConnectedException(ConnectionException):
+    pass
+
+
+# ImageExceptions
+class ImageException(DivoException):
+    pass
+
+
+class UnsupportedTerminalException(ImageException):
     pass

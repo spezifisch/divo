@@ -1,6 +1,6 @@
 """
 This file is part of divo (https://github.com/spezifisch/divo).
-Copyright (c) 2021 spezifisch (https://github.com/spezifisch).
+Copyright (c) 2021-2022 spezifisch (https://github.com/spezifisch).
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -12,10 +12,13 @@ You should have received a copy of the GNU General Public License along with
 this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import io
 from math import ceil, log
 from typing import List, Optional
 
 from colorconsole import terminal
+
+from divo.exceptions import UnsupportedTerminalException
 
 
 class Color:
@@ -74,7 +77,12 @@ class ImageBuffer:
 
 class Screen:
     def __init__(self, block: str = "██") -> None:
-        self.screen = terminal.get_terminal(conEmu=False)
+        try:
+            self.screen = terminal.get_terminal(conEmu=False)
+        except io.UnsupportedOperation:
+            # this happens when trying to get a terminal inside a unit test
+            raise UnsupportedTerminalException("Your terminal doesn't work with colorconsole")
+
         self.block = block
 
     def print_color(self, color: Color) -> None:

@@ -13,11 +13,6 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 try:
-    import uvicorn
-except ImportError:
-    pass  # this is fine if the user doesn't call run(). this way we support using hypercorn etc.
-
-try:
     from fastapi import FastAPI
     from pydantic import BaseModel
 except ImportError:
@@ -38,4 +33,6 @@ async def read_root() -> RootOut:
 
 def run() -> None:
     """Start REST API with uvicorn"""
+    import uvicorn
+
     uvicorn.run("divo.rest.app:app")
